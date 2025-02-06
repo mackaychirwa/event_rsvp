@@ -34,7 +34,6 @@ class _DashboardState extends State<Dashboard> {
           ],
         ),
       ),
-      endDrawer: const CustomDrawer(),
     );
   }
 
