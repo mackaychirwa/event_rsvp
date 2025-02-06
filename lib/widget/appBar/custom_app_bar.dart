@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../view/settings/settings.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

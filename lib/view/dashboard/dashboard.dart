@@ -1,10 +1,8 @@
 import '../../constant/images.dart';
-import '../../constant/text_constant.dart';
 import '../../view/books/bookings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../widget/appBar/custom_app_bar.dart';
-import '../../widget/drawer/drawer.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
