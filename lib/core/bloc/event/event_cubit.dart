@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-
+import 'package:hive/hive.dart';
 import '../../../models/event/eventModel.dart';
 
 // Define the events states
@@ -14,7 +14,7 @@ class EventInitial extends EventState {}
 
 class EventLoaded extends EventState {
   final List<EventModel> events;
-
+  // final List<Map<String, dynamic>> events;
   EventLoaded(this.events);
 
   @override
@@ -43,21 +43,22 @@ class EventCubit extends Cubit<EventState> {
   EventCubit() : super(EventInitial());
 
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-
+  // final Box _eventsBox = Hive.box('eventsBox');
 Future<void> fetchEvents() async {
   try {
     QuerySnapshot snapshot = await _firebaseFirestore.collection('events').get();
 
     final events = snapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
+      
       return EventModel.fromFirestore(data, doc.id); 
     }).toList();
-
     emit(EventLoaded(events));
+      // await _eventsBox.put('events', events);
+
   } catch (e) {
     emit(EventError(e.toString()));
   }
 }
-
 
 }

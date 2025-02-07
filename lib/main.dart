@@ -36,7 +36,7 @@ void main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('userBox');
-
+  await Hive.openBox('eventsBox');
   SystemChrome.setSystemUIOverlayStyle(
     isIOS
         ? const SystemUiOverlayStyle(
