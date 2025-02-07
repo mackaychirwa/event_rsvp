@@ -20,12 +20,8 @@ class Authentication extends StatelessWidget {
           padding: CSpacingStyle.paddingWithAppBarHeight,
           child: Column(
             children: [
-              // Logo, Title, Subtitle
               const LoginHeader(),
-
-              // Form
               login_form(),
-              // Divider line
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -37,7 +33,6 @@ class Authentication extends StatelessWidget {
                   ),
                 ],
               ),
-              // Sign Up Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

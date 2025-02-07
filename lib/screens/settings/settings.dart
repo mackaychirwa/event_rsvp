@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+
+import '../../core/bloc/online_offline/online_offline_cubit.dart';
 
 
 
@@ -108,6 +111,35 @@ class Settings extends StatelessWidget {
             },
           ),
           const Divider(),
+
+         BlocBuilder<OnlineOfflineCubit, OnlineOfflineState>(
+            builder: (context, state) {
+              bool isOnline = state is OnlineState;
+
+              return ListTile(
+                title: const Text('Online Mode'),
+                leading: const Icon(Icons.wifi),
+                trailing: Switch(
+                  value: isOnline,
+                  onChanged: (bool value) {
+                    // Toggle the online/offline mode using the cubit
+                    context.read<OnlineOfflineCubit>().toggleOnlineStatus(value);
+
+                    // Optionally, show a snack bar or perform any other action
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          value ? 'Switched to Online Mode' : 'Switched to Offline Mode',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
           ListTile(
             title: const Text('Logout'),
             leading: const Icon(Icons.exit_to_app, color: Colors.red),
@@ -117,6 +149,7 @@ class Settings extends StatelessWidget {
             },
           ),
           const Divider(),
+            
         ],
       ),
     );

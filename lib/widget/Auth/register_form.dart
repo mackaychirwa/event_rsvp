@@ -1,13 +1,14 @@
+import 'package:event_rsvp/core/bloc/auth_bloc.dart';
+import 'package:event_rsvp/core/bloc/auth_error.dart';
+import 'package:event_rsvp/core/bloc/auth_loading.dart';
+import 'package:event_rsvp/core/bloc/auth_success.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
-
 import '../../constant/sizes.dart';
-import '../../controller/Auth/SignupController.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 class SignupForm extends StatefulWidget {
   @override
@@ -15,16 +16,20 @@ class SignupForm extends StatefulWidget {
 }
 
 class _SignupFormState extends State<SignupForm> {
-  final SignupController signupController = Get.put(SignupController());
   List<dynamic> countryPrefixes = [];
   bool isLoading = true;
   String selectedPrefix = "+265";
-
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
     fetchCountryPrefixes();
   }
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   // Function to fetch country prefixes from local JSON file
   Future<void> fetchCountryPrefixes() async {
@@ -55,12 +60,13 @@ class _SignupFormState extends State<SignupForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
+       key: _formKey,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: CSizes.spaceBtwSections),
         child: Column(
           children: [
             TextFormField(
-              controller: signupController.nameController,
+              controller: nameController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(FontAwesomeIcons.user),
                 labelText: "Enter Name",
@@ -68,7 +74,7 @@ class _SignupFormState extends State<SignupForm> {
             ),
             const SizedBox(height: CSizes.spaceBtwInputFields),
             TextFormField(
-              controller: signupController.emailController,
+              controller: emailController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.email),
                 labelText: "Enter Email",
@@ -107,7 +113,7 @@ class _SignupFormState extends State<SignupForm> {
                 Expanded(
                   flex: 3, // Adjust flex to control the width proportion
                   child: TextFormField(
-                    controller: signupController.phoneController,
+                    controller: phoneController,
                     decoration: const InputDecoration(
                       labelText: "Enter Phone Number",
                     ),
@@ -121,7 +127,7 @@ class _SignupFormState extends State<SignupForm> {
 
                 // Password with Validation
             TextFormField(
-              controller: signupController.passwordController,
+              controller: passwordController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.lock),
                 labelText: "Enter Password",
@@ -131,14 +137,14 @@ class _SignupFormState extends State<SignupForm> {
             ),
             const SizedBox(height: CSizes.spaceBtwInputFields),
             TextFormField(
-              controller: signupController.confirmPasswordController, // Use a separate controller
+              controller: confirmPasswordController, // Use a separate controller
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.lock),
                 labelText: "Confirm Password",
               ),
               obscureText: true,
               validator: (value) {
-                if (value != signupController.passwordController.text) {
+                if (value != passwordController.text) {
                   return 'Passwords do not match';
                 }
                 return passwordValidator(value); // You can reuse the password validator
@@ -146,43 +152,73 @@ class _SignupFormState extends State<SignupForm> {
             ),
 
             const SizedBox(height: CSizes.spaceBtwInputFields),
-
-            // Signup Button
-            Container(
-              height: 50,
-              width: MediaQuery.of(context).size.width / 1.2,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              child: InkWell(
-                onTap: () async {
-                  signupController.signup(); 
-                },
-                child: Obx(
-                      () {
-                    return signupController.isLoading.value
-                        ? const SizedBox(
-                          height: 21.0,
-                          width: 21.0,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.0,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Center(
-                          child: Text(
-                        'Sign Up',
-                          style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
+              BlocConsumer<AuthCubit, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
                     );
-                  },
-                ),
-              ),
-            ),
+                  }
+                  if (state is AuthSuccess) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please Login')),
+                      );
+
+                      // Clear input fields
+                      nameController.clear();
+                      emailController.clear();
+                      phoneController.clear();
+                      passwordController.clear();
+                      confirmPasswordController.clear();
+
+                      // Navigate to Login Screen
+                      Navigator.pushReplacementNamed(context, '/signin');
+                    }
+                },
+                builder: (context, state) {
+                  return Container(
+                    height: 50,
+                    width: MediaQuery.of(context).size.width / 1.2,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          context.read<AuthCubit>().signUp(
+                            nameController.text,
+                            emailController.text,
+                            phoneController.text,
+                            passwordController.text,
+                            confirmPasswordController.text,
+                          );
+                        }
+                      },
+                      child: Center(
+                        child: state is AuthLoading
+                            ? const SizedBox(
+                                height: 21.0,
+                                width: 21.0,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.0,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
+                      ),
+                    ),
+                  );
+                },
+              )
+
+           
           ],
         ),
       ),

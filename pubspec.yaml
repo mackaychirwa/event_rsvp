@@ -51,12 +51,7 @@ dependencies:
   fl_chart: ^0.70.2
   flutter_spinkit: ^5.2.1
 
-  # File Handling and Media
-  file_picker: ^8.3.1
-  flutter_pdf_text: ^0.8.1
-  audioplayers: ^6.1.1
-  flutter_tts: ^4.2.2
-
+  
   # User Experience and Preferences
   flutter_otp_text_field: ^1.4.0+2
   shared_preferences: ^2.5.1
@@ -64,10 +59,11 @@ dependencies:
   # Firebase Integration
   firebase_core: ^3.10.1
   firebase_crashlytics: ^4.3.1
-
+  firebase_auth: ^5.4.2
+  cloud_firestore: ^5.6.3
   # Local Notification
-  flutter_local_notifications: ^18.0.1
-
+  # flutter_local_notifications: ^18.0.1
+  intl: ^0.20.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734322183616",
+    "project_id": "event-rsvp-e1e23",
+    "storage_bucket": "event-rsvp-e1e23.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734322183616:android:e095bbd0b4fad0c1b4cc25",
+        "android_client_info": {
+          "package_name": "com.event.rsvp.event_rsvp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0yfRTh08uY6nAZSiD9aJ69WAMJ8KoE1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

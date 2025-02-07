@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import '../view/books/myBooking.dart';
-import '../../view/dashboard/dashboard.dart';
-import '../../view/notification/notification.dart';
+import '../screens/books/myBooking.dart';
+import '../../screens/dashboard/dashboard.dart';
+import '../../screens/notification/notification.dart';
 
 class BottomNavBar extends StatefulWidget {
   @override

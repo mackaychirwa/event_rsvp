@@ -1,25 +1,26 @@
+import 'package:event_rsvp/core/bloc/auth_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
-
 import '../../constant/sizes.dart';
-import '../../controller/Auth/LoginController.dart';
-import '../../view/dashboard/dashboard.dart';
-import '../bottomNavigation/bottomnavbar.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:event_rsvp/core/bloc/auth_bloc.dart';
+import 'package:event_rsvp/core/bloc/auth_error.dart';
+import 'package:event_rsvp/core/bloc/auth_success.dart';
 class login_form extends StatelessWidget {
-  final LoginController loginController = Get.put(LoginController());
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: CSizes.spaceBtwSections),
         child: Column(
           children: [
-            /// Username
             TextFormField(
-              controller: loginController.emailController,
+              controller: emailController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(
                   FontAwesomeIcons.user,
@@ -28,11 +29,9 @@ class login_form extends StatelessWidget {
               ),
             ),
             const SizedBox(height: CSizes.spaceBtwInputFields),
-
-            /// Password
             TextFormField(
               obscureText: true,
-              controller: loginController.passwordController,
+              controller: passwordController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(FontAwesomeIcons.userSecret),
                 labelText: "Enter Password",
@@ -43,8 +42,6 @@ class login_form extends StatelessWidget {
               ),
             ),
             const SizedBox(height: CSizes.spaceBtwInputFields / 2),
-
-            /// Forgot Password
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -60,42 +57,61 @@ class login_form extends StatelessWidget {
             ),
 
             const SizedBox(height: CSizes.spaceBtwSections),
-
-            Container(
-              height: 50,
-              width: MediaQuery.of(context).size.width / 1.2,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              child: InkWell(
-                onTap: () async {
-                  Get.off(() => BottomNavBar());
-                  // loginController.login(); // Triggers the login action
+            BlocConsumer<AuthCubit, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text("Wrong combination of email/password ")),
+                    );
+                  }
+                  if (state is AuthSuccess) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Welcome to RSVP')),
+                      );
+                      emailController.clear();
+                      passwordController.clear();
+                      Navigator.pushReplacementNamed(context, '/bottomNav');
+                    }
                 },
-                child: Obx(
-                  () {
-                    // Observes the isLoading variable from loginController
-                    return loginController.isLoading.value
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.0,
-                              color: Colors.white,
-                            ),
-                          ) 
-                        : const Center(
-                            child: Text(
-                              'Sign In',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                              ),
-                            ),
+                builder: (context, state) {
+                  return Container(
+                    height: 50,
+                    width: MediaQuery.of(context).size.width / 1.2,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          context.read<AuthCubit>().signIn(
+                            emailController.text,
+                            passwordController.text,
                           );
-                  },
-                ),
+                        }
+                      },
+                      child: Center(
+                        child: state is AuthLoading
+                            ? const SizedBox(
+                                height: 21.0,
+                                width: 21.0,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.0,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
 
             const SizedBox(height: CSizes.spaceBtwItems),
             const SizedBox(height: CSizes.spaceBtwItems),

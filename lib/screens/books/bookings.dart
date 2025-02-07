@@ -1,19 +1,25 @@
+import 'package:event_rsvp/models/event/eventModel.dart';
 import 'package:event_rsvp/widget/appBar/custom_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../constant/images.dart';
-import '../../constant/text_constant.dart';
 import '../../constant/colors.dart';
 import '../../constant/sizes.dart';
 
+import '../../core/bloc/attendance/attendance_cubit.dart';
+
 class EventPage extends StatelessWidget {
-  const EventPage({super.key});
+  final EventModel event;
+
+  const EventPage({super.key, required this.event});
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: const CustomAppBar(title: 'Event Details'),
       body: SingleChildScrollView(
-        
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,45 +27,48 @@ class EventPage extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12.0),
               child: Image.asset(
-                TImages.user,
+                TImages.user, // Replace with actual event image or asset
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: CSizes.spaceBtwSections),
-
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text('Going On', style: TextStyle(color: CColors.white)),
+                  child: const Text('Going On',
+                      style: TextStyle(color: CColors.white)),
                 ),
                 const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.share, color: CColors.black),
-                  onPressed: () {},
-                ),
+             
               ],
             ),
-            const Text(
-              'The Dubai Summer Social: Founders x Investors',
-              style: TextStyle(color: CColors.black, fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              event.event_name, // Display event name dynamically
+              style: const TextStyle(
+                  color: CColors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
-            const Row(
+            Row(
               children: [
                 Icon(Icons.group, color: CColors.black, size: 16),
                 SizedBox(width: 5),
-                Text('Gullie Global Community Events', style: TextStyle(color: CColors.black)),
+                Text(
+                  event.event_name,
+                  style: const TextStyle(color: CColors.black),
+                ),
               ],
             ),
             const SizedBox(height: CSizes.spaceBtwSections),
-
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
@@ -71,32 +80,40 @@ class EventPage extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 35, vertical: 5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text('Location Details', style: TextStyle(color: CColors.white)),
+                        child: const Text('Location Details',
+                            style: TextStyle(color: CColors.white)),
                       ),
-                    
                     ],
                   ),
-                  eventDetailItem(Icons.calendar_today, 'Sunday, October 19', '10:00 PM - 9:00 PM PDT'),
+                    eventDetailItem(
+                    Icons.calendar_today,
+                    "2",
+                    event.event_date, 
+                  ),
                   const SizedBox(height: 10),
-                  eventDetailItem(Icons.location_on, '94025', 'West Menlo Park, California'),
+                  eventDetailItem(Icons.location_on, event.location,
+                      event.location),
                 ],
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              onPressed: () {},
-              child: const Text('RSVP', style: TextStyle(color: CColors.white, fontSize: CSizes.fontSizeMd)),
+              onPressed: () {
+                  context.read<AttendeeCubit>().increaseAttendeeCount(event.id);
+              }, 
+              child: const Text('RSVP', style: TextStyle(color: CColors.white)),
             ),
           ],
         ),
@@ -112,7 +129,9 @@ class EventPage extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(color: CColors.black, fontWeight: FontWeight.bold)),
+            Text(title,
+                style: const TextStyle(
+                    color: CColors.black, fontWeight: FontWeight.bold)),
             Text(subtitle, style: TextStyle(color: Colors.grey[400])),
           ],
         ),
