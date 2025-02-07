@@ -1,6 +1,40 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 
+import '../event/event_cubit.dart';
+
+abstract class AttendeeState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class AttendeeInitial extends AttendeeState {}
+
+class AttendeeLoading extends AttendeeState {}
+
+class AttendeeLoaded extends AttendeeState {
+  final int attendeeCount;
+  AttendeeLoaded(this.attendeeCount);
+
+  @override
+  List<Object> get props => [attendeeCount];
+}
+
+class AttendeeError extends AttendeeState {
+  final String error;
+  AttendeeError(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+class AttendeeSuccess extends AttendeeState {
+   final int attendeeCount;
+  AttendeeSuccess(this.attendeeCount);
+
+  @override
+  List<Object> get props => [attendeeCount];
+}
 class AttendeeCubit extends Cubit<int> {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
@@ -29,6 +63,7 @@ class AttendeeCubit extends Cubit<int> {
         'attendee': FieldValue.increment(1),
       });
       loadAttendeeCount(eventId);
+    
     } catch (e) {
       print("Error updating attendee count: $e");
     }

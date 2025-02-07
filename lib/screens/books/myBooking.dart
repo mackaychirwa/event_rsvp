@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../widget/dialogs/dialog.dart';
-import 'bookings.dart';
+import 'eventPage.dart';
 
 class Attendance extends StatefulWidget {
   const Attendance({super.key});

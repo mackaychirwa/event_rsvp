@@ -1,25 +1,22 @@
 class EventModel {
-  final String id;
+  final String id; // Add this
   final String event_name;
-  final String event_date;
   final String location;
-  final int attendee; 
+  final int attendee;
 
   EventModel({
     required this.id,
     required this.event_name,
-    required this.event_date,
     required this.location,
     required this.attendee,
   });
 
-  factory EventModel.fromFirestore(Map<String, dynamic> data) {
+  factory EventModel.fromFirestore(Map<String, dynamic> data, String docId) {
     return EventModel(
-      id: data['id'] ?? '',
+      id: docId, 
       event_name: data['event_name'] ?? '',
-      event_date: data['event_date'] ?? '',
       location: data['location'] ?? '',
-      attendee: data['attendee'] ?? 0,  
+      attendee: data['attendee'] ?? 0,
     );
   }
 }

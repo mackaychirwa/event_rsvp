@@ -1,15 +1,6 @@
-import 'package:hive/hive.dart';
-
-
-@HiveType(typeId: 0)
-class UserModel extends HiveObject {
-  @HiveField(0)
+class UserModel {
+  final String uid;
   final String email;
-  
-  @HiveField(1)
-  final String username;
 
-  // Add other fields you want to store
-
-  UserModel({required this.email, required this.username});
+  UserModel({required this.uid, required this.email});
 }

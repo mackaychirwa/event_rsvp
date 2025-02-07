@@ -44,18 +44,20 @@ class EventCubit extends Cubit<EventState> {
 
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  Future<void> fetchEvents() async {
-    try {
-      QuerySnapshot snapshot = await _firebaseFirestore.collection('events').get();
+Future<void> fetchEvents() async {
+  try {
+    QuerySnapshot snapshot = await _firebaseFirestore.collection('events').get();
 
-      final events = snapshot.docs
-          .map((doc) => EventModel.fromFirestore(doc.data() as Map<String, dynamic>))
-          .toList();
+    final events = snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return EventModel.fromFirestore(data, doc.id); 
+    }).toList();
 
-      emit(EventLoaded(events)); 
-    } catch (e) {
-      print("Error fetching events: $e");
-      emit(EventError(e.toString())); 
-    }
+    emit(EventLoaded(events));
+  } catch (e) {
+    emit(EventError(e.toString()));
   }
+}
+
+
 }

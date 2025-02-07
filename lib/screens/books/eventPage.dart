@@ -5,14 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../constant/images.dart';
 import '../../constant/colors.dart';
 import '../../constant/sizes.dart';
-
 import '../../core/bloc/attendance/attendance_cubit.dart';
 
 class EventPage extends StatelessWidget {
   final EventModel event;
-
   const EventPage({super.key, required this.event});
-
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +24,7 @@ class EventPage extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12.0),
               child: Image.asset(
-                TImages.user, // Replace with actual event image or asset
+                TImages.user, 
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -51,7 +48,7 @@ class EventPage extends StatelessWidget {
               ],
             ),
             Text(
-              event.event_name, // Display event name dynamically
+              event.event_name, 
               style: const TextStyle(
                   color: CColors.black,
                   fontSize: 20,
@@ -60,8 +57,8 @@ class EventPage extends StatelessWidget {
             const SizedBox(height: 5),
             Row(
               children: [
-                Icon(Icons.group, color: CColors.black, size: 16),
-                SizedBox(width: 5),
+                const Icon(Icons.group, color: CColors.black, size: 16),
+                const SizedBox(width: 5),
                 Text(
                   event.event_name,
                   style: const TextStyle(color: CColors.black),
@@ -92,8 +89,7 @@ class EventPage extends StatelessWidget {
                   ),
                     eventDetailItem(
                     Icons.calendar_today,
-                    "2",
-                    event.event_date, 
+                    "2","",
                   ),
                   const SizedBox(height: 10),
                   eventDetailItem(Icons.location_on, event.location,
@@ -112,6 +108,8 @@ class EventPage extends StatelessWidget {
               ),
               onPressed: () {
                   context.read<AttendeeCubit>().increaseAttendeeCount(event.id);
+                  Navigator.pushReplacementNamed(context, '/bottomNav');
+
               }, 
               child: const Text('RSVP', style: TextStyle(color: CColors.white)),
             ),
