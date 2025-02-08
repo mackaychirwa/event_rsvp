@@ -64,7 +64,7 @@ class _EventPageState extends State<EventPage> {
               ],
             ),
             Text(
-              widget.event.event_name, // FIXED: use widget.event
+              widget.event.eventName, // FIXED: use widget.event
               style: const TextStyle(
                   color: CColors.black,
                   fontSize: 20,
@@ -76,7 +76,7 @@ class _EventPageState extends State<EventPage> {
                 const Icon(Icons.group, color: CColors.black, size: 16),
                 const SizedBox(width: 5),
                 Text(
-                  widget.event.event_name, // FIXED: use widget.event
+                  widget.event.eventName, // FIXED: use widget.event
                   style: const TextStyle(color: CColors.black),
                 ),
               ],

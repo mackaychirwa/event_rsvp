@@ -1,22 +1,48 @@
+import 'package:hive_ce/hive.dart';
+
+part 'eventModel.g.dart'; 
+
+@HiveType(typeId: 0)
 class EventModel {
-  final String id; // Add this
-  final String event_name;
-  final String location;
-  final int attendee;
+  @HiveField(0)
+  int localId;
+
+  @HiveField(1)
+  String id; 
+
+  @HiveField(2)
+  String eventName;
+
+  @HiveField(3)
+  String location;
+
+  @HiveField(4)
+  int attendee;
 
   EventModel({
+    this.localId = 0,
     required this.id,
-    required this.event_name,
+    required this.eventName,
     required this.location,
     required this.attendee,
   });
 
+  // Convert Firestore document to EventModel object
   factory EventModel.fromFirestore(Map<String, dynamic> data, String docId) {
     return EventModel(
-      id: docId, 
-      event_name: data['event_name'] ?? '',
+      id: docId,
+      eventName: data['event_name'] ?? '',
       location: data['location'] ?? '',
       attendee: data['attendee'] ?? 0,
     );
+  }
+
+  /// Convert EventModel object to Firestore-compatible map
+  Map<String, dynamic> toFirestore() {
+    return {
+      "event_name": eventName,
+      "location": location,
+      "attendee": attendee,
+    };
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import '../../model/event/eventModel.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../../../core/network/internet_connectivity.dart';
+
 // Define the events states
 abstract class EventState extends Equatable {
   @override
@@ -48,7 +51,6 @@ class EventCubit extends Cubit<EventState> {
   late Box<EventModel> getEvent;
 
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-   late ConnectivityProvider _connectivityProvider;
 
   Future<void> fetchEvents() async {
     try {
@@ -57,7 +59,9 @@ class EventCubit extends Cubit<EventState> {
 
       final events = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        // getEvent.put(doc.id, EventModel.fromFirestore(data, doc.id));
+        final event = EventModel.fromFirestore(data, doc.id);
+        log(event as String);
+        // getEvent.put(doc.id, event);
         return EventModel.fromFirestore(data, doc.id);
       }).toList();
       emit(EventLoaded(events));

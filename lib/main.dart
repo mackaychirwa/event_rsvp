@@ -11,8 +11,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:hive_ce/hive.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'dart:ui';
@@ -20,9 +21,11 @@ import '/screens/authentication/authentication.dart';
 import '/screens/authentication/registration.dart';
 import '/screens/dashboard/dashboard.dart';
 import '/screens/onBoarding/onBoardingScreen.dart';
+import 'hive_registrar.g.dart';
 import 'screens/authentication/bloc/user/auth_bloc.dart';
 import '/constant/text_constant.dart';
 import '/core/usecases/auth_use_case.dart';
+import 'screens/authentication/model/user/userModel.dart';
 import 'screens/event/bloc/attendance/attendance_cubit.dart';
 import 'screens/event/bloc/event/event_cubit.dart';
 import 'core/global_bloc/online_offline/online_offline_cubit.dart';
@@ -30,6 +33,7 @@ import 'core/network/internet_connectivity.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 
+import 'screens/event/model/attendance/attendanceModel.dart';
 import 'screens/event/model/event/eventModel.dart';
 
 Future<void> _incrementCounter() async {
@@ -49,6 +53,12 @@ void callbackDispatcher() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isIOS = foundation.defaultTargetPlatform == TargetPlatform.iOS;
+  await Hive.initFlutter();
+  // Register the User adapter
+  Hive
+    ..registerAdapter(AttendanceModelAdapter())
+    ..registerAdapter(EventModelAdapter())
+    ..registerAdapter(UserModelAdapter());
 
   try {
     await Firebase.initializeApp(
@@ -57,12 +67,6 @@ void main() async {
   } catch (e) {
     log('Firebase initialization failed: $e');
   }
-
-  await Hive.initFlutter();
-  // Hive.registerAdapter(EventModelAdapter());
-  // await Hive.openBox('userBox');
-  // await Hive.openBox('attendanceBox');
-  // await Hive.openBox<EventModel>('eventsBox');
 
   SystemChrome.setSystemUIOverlayStyle(
     isIOS

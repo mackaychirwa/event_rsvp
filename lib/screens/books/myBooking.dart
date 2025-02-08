@@ -109,7 +109,7 @@ class _AttendanceState extends State<Attendance> {
             ),
             child: const Icon(Icons.event, size: 30, color: Colors.grey),
           ),
-          title: Text(event.event_name, style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(event.eventName, style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Text(event.location),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,

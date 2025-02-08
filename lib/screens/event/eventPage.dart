@@ -64,7 +64,7 @@ class _EventPageState extends State<EventPage> {
               ],
             ),
             Text(
-              widget.event.event_name, // FIXED: use widget.event
+              widget.event.eventName, 
               style: const TextStyle(
                   color: CColors.black,
                   fontSize: 20,
@@ -76,7 +76,7 @@ class _EventPageState extends State<EventPage> {
                 const Icon(Icons.group, color: CColors.black, size: 16),
                 const SizedBox(width: 5),
                 Text(
-                  widget.event.event_name, // FIXED: use widget.event
+                  widget.event.eventName, 
                   style: const TextStyle(color: CColors.black),
                 ),
               ],
@@ -105,11 +105,11 @@ class _EventPageState extends State<EventPage> {
                   eventDetailItem(
                     Icons.calendar_today,
                     "Event Date",
-                    "2", // Example date, replace dynamically
+                    "2",
                   ),
                   const SizedBox(height: 10),
                   eventDetailItem(
-                      Icons.location_on, widget.event.location, widget.event.location), // FIXED: use widget.event
+                      Icons.location_on, widget.event.location, widget.event.location), 
                 ],
               ),
             ),
@@ -149,7 +149,7 @@ class _EventPageState extends State<EventPage> {
           children: [
             Text(title,
                 style: const TextStyle(
-                    color: CColors.white, // FIXED: ensure visibility
+                    color: CColors.white, 
                     fontWeight: FontWeight.bold)),
             Text(subtitle, style: TextStyle(color: Colors.grey[400])),
           ],
