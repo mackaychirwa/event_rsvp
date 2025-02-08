@@ -9,6 +9,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
+import 'dart:ui';
 import '/screens/authentication/authentication.dart';
 import '/screens/authentication/registration.dart';
 import '/screens/dashboard/dashboard.dart';
@@ -18,12 +21,78 @@ import '/constant/text_constant.dart';
 import '/core/usecases/auth_use_case.dart';
 import 'core/bloc/attendance/attendance_cubit.dart';
 import 'core/bloc/event/event_cubit.dart';
+import 'core/bloc/online_offline/online_offline_cubit.dart';
 import 'firebase_options.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-bool get isIOS => foundation.defaultTargetPlatform == TargetPlatform.iOS;
+// Define notification constants BEFORE use
+const String notificationChannelId = 'my_foreground';
+const int notificationId = 888;
+
+Future<void> onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized(); // Ensure plugins are registered
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  // Bring to foreground
+  Timer.periodic(const Duration(seconds: 1), (timer) async {
+    if (service is AndroidServiceInstance) {
+      if (await service.isForegroundService()) {
+        flutterLocalNotificationsPlugin.show(
+          notificationId,
+          'COOL SERVICE',
+          'Awesome ${DateTime.now()}',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              notificationChannelId,
+              'MY FOREGROUND SERVICE',
+              icon: 'ic_bg_service_small',
+              ongoing: true,
+            ),
+          ),
+        );
+      }
+    }
+  });
+}
+
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    notificationChannelId, // id
+    'MY FOREGROUND SERVICE', // title
+    description: 'This channel is used for important notifications.', 
+    importance: Importance.low, 
+  );
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  await service.iosConfiguration(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      autoStart: true,
+      isForegroundMode: true,
+      notificationChannelId: notificationChannelId, 
+      initialNotificationTitle: 'AWESOME SERVICE',
+      initialNotificationContent: 'Initializing',
+      foregroundServiceNotificationId: notificationId,
+    ),
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  bool isIOS = foundation.defaultTargetPlatform == TargetPlatform.iOS;
+  
+  await initializeService();
 
   try {
     await Firebase.initializeApp(
@@ -31,12 +100,12 @@ void main() async {
     );
   } catch (e) {
     print('Firebase initialization failed: $e');
-    // Handle the error appropriately in your app context
   }
 
   await Hive.initFlutter();
   await Hive.openBox('userBox');
-  await Hive.openBox('eventsBox');
+  await Hive.openBox<List>('eventsBox');
+
   SystemChrome.setSystemUIOverlayStyle(
     isIOS
         ? const SystemUiOverlayStyle(
@@ -49,7 +118,10 @@ void main() async {
           ),
   );
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp, 
+    DeviceOrientation.portraitDown
+  ]);
 
   runApp(
     MultiBlocProvider(
@@ -58,7 +130,7 @@ void main() async {
         BlocProvider(create: (context) => UserCubit()), 
         BlocProvider(create: (context) => EventCubit()), 
         BlocProvider(create: (context) => AttendeeCubit()), 
-        
+        BlocProvider(create: (context) => OnlineOfflineCubit()), 
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 690),
@@ -114,13 +186,6 @@ void main() async {
                   ),
                 ),
                 home: const OnboardingScreen(),
-                routes: {
-                  '/signin': (context) => const Authentication(),
-                  '/signup': (context) => const Register(),
-                  '/dashboard': (context) => const Dashboard(),
-                  '/bottomNav': (context) => BottomNavBar(),
-                  '/settings': (context) => Settings(),
-                },
               ),
       ),
     ),

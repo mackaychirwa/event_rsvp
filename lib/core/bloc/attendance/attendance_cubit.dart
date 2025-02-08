@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:event_rsvp/core/database/attendance/attendance.dart';
+import 'package:event_rsvp/core/database/registration/userRegistrationDatabase.dart';
 
 import '../event/event_cubit.dart';
 
@@ -62,10 +64,15 @@ class AttendeeCubit extends Cubit<int> {
       await _firebaseFirestore.collection('events').doc(eventId).update({
         'attendee': FieldValue.increment(1),
       });
+
+      await AttendanceDatabase().createAttendanceData(eventId);
+
       loadAttendeeCount(eventId);
     
     } catch (e) {
       print("Error updating attendee count: $e");
     }
   }
+
+  
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import '../../core/bloc/event/event_cubit.dart';
+import '../../core/bloc/user/user_bloc.dart';
+import '../../models/event/eventModel.dart';
 import '../../widget/dialogs/dialog.dart';
 import 'eventPage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Attendance extends StatefulWidget {
   const Attendance({super.key});
@@ -13,17 +16,12 @@ class Attendance extends StatefulWidget {
 
 class _AttendanceState extends State<Attendance> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  final List<Map<String, dynamic>> _recentReads = [
-    {
-      'title': 'The Silent Patient',
-      'progress': 0.65,
-      'author': 'Alex Michaelides'
-    },
-    {'title': 'Atomic Habits', 'progress': 0.85, 'author': 'James Clear'},
-    {'title': '1984', 'progress': 0.45, 'author': 'George Orwell'},
-    {'title': 'Dune', 'progress': 0.25, 'author': 'Frank Herbert'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserCubit>().fetchUser();
+    context.read<EventCubit>().fetchMyEvents();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,57 +65,66 @@ class _AttendanceState extends State<Attendance> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        
-        ListView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            _buildBestForYouCard("Artexpo | Visual Design Exhibition", "Dec 22-31", "Jogja Expo Center", "\5"),
-            _buildBestForYouCard("Classic Vespa Festival 2021 - Bali", "Dec 29-30", "Western Park", "\10"),
-          ],
+        BlocBuilder<EventCubit, EventState>(
+          builder: (context, state) {
+            if (state is EventLoaded) {
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: state.events.length,
+                itemBuilder: (context, index) {
+                  final event = state.events[index];
+                  return _buildBestForYouCard(event);
+                },
+              );
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
         ),
       ],
     );
   }
+  Widget _buildBestForYouCard(EventModel event) {
+    return InkWell(
+      onTap: () =>   Get.dialog(CancelRsvpDialog(
+        onConfirm: () {
+          // Handle cancellation logic here
+          print("RSVP Cancelled");
+        },
+      ),
+      ),
 
-Widget _buildBestForYouCard(String title, String date, String location, String attendeeCount) {
-  return GestureDetector(
-  onTap: () =>   Get.dialog(CancelRsvpDialog(
-    onConfirm: () {
-      // Handle cancellation logic here
-      print("RSVP Cancelled");
-    },
-  ),),
-    child: Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.grey.shade300,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.grey.shade300,
+            ),
+            child: const Icon(Icons.event, size: 30, color: Colors.grey),
           ),
-          child: const Icon(Icons.event, size: 30, color: Colors.grey),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text("$date | $location"),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              attendeeCount,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const Text(
-              "Attendees",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
+          title: Text(event.event_name, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(event.location),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "${event.attendee}",
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const Text(
+                "Attendees",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-}

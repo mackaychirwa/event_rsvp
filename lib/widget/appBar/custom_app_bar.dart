@@ -27,16 +27,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Theme.of(context).colorScheme.onPrimary,
       elevation: 0.0,
       actions: [
-        Transform.translate(
-          offset: const Offset(-10, 0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: Colors.black,
-            child: IconButton(
-              icon: const Icon(Icons.person, size: 15, color: Colors.white),
-              onPressed: () {
-                 Navigator.pushReplacementNamed(context, 'settings');
-              },
+        GestureDetector(
+          onTap: () => Navigator.pushReplacementNamed(context, '/settings'),
+          child: Transform.translate(
+            offset: const Offset(-10, 0),
+            child: const CircleAvatar(
+              radius: 15,
+              backgroundColor: Colors.black,
+              child: Icon(Icons.person, size: 15, color: Colors.white)
             ),
           ),
         ),
