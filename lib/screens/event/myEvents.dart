@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../event/bloc/event/event_cubit.dart';
+import 'bloc/event/event_cubit.dart';
 import '../authentication/bloc/user/user_bloc.dart';
-import '../event/model/event/eventModel.dart';
+import 'model/event/eventModel.dart';
 import '../../widget/dialogs/dialog.dart';
 
 class Attendance extends StatefulWidget {
@@ -28,11 +28,11 @@ class _AttendanceState extends State<Attendance> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          "My Bookings",
+          "My Events",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 18, // Slightly bigger for visibility
+            fontSize: 18, 
           ),
         ),
         centerTitle: false,
@@ -40,7 +40,7 @@ class _AttendanceState extends State<Attendance> {
         elevation: 0.0,
         actions: [
           Transform.translate(
-            offset: const Offset(-10, 0), // Moves left by 10 pixels
+            offset: const Offset(-10, 0), 
             child: CircleAvatar(
               radius: 15,
               backgroundColor: Colors.black,

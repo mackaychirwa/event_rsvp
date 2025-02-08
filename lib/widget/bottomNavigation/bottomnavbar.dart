@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import '../../screens/books/myBooking.dart';
+import '../../screens/event/myEvents.dart';
 import '../../screens/dashboard/dashboard.dart';
 import '../../screens/notification/notification.dart';
 

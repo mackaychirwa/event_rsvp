@@ -1,5 +1,5 @@
 
-import 'package:event_rsvp/core/bloc/auth_event.dart';
+import 'package:event_rsvp/screens/authentication/bloc/user/auth_event.dart';
 
 class SignUpEvent extends AuthEvent {
   final String name;

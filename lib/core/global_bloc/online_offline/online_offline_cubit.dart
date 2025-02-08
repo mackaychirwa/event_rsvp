@@ -1,3 +1,4 @@
+import 'package:event_rsvp/screens/event/database/attendance/attendance.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -14,11 +15,13 @@ class OfflineState extends OnlineOfflineState {}
 
 // Create the cubit to manage the online/offline state
 class OnlineOfflineCubit extends Cubit<OnlineOfflineState> {
-  OnlineOfflineCubit() : super(OnlineState()); // Default to online state
+  OnlineOfflineCubit() : super(OnlineState());
 
   // Toggle online/offline
-  void toggleOnlineStatus(bool isOnline) {
+  void toggleOnlineStatus(bool isOnline) async {
     if (isOnline) {
+      await AttendanceDatabase().syncToFirestore();
+
       emit(OnlineState());
     } else {
       emit(OfflineState());

@@ -1,4 +1,4 @@
-import 'package:event_rsvp/core/bloc/auth_bloc.dart';
+import 'package:event_rsvp/screens/authentication/bloc/user/auth_bloc.dart';
 
 class AuthFailure extends AuthState {
   final String message;

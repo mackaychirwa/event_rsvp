@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-import 'package:event_rsvp/core/database/attendance/attendance.dart';
-import 'package:event_rsvp/core/database/registration/userRegistrationDatabase.dart';
+import 'package:event_rsvp/screens/event/database/attendance/attendance.dart';
+import 'package:event_rsvp/screens/authentication/database/registration/userRegistrationDatabase.dart';
 
 import '../event/event_cubit.dart';
 
@@ -66,6 +66,7 @@ class AttendeeCubit extends Cubit<int> {
       });
 
       await AttendanceDatabase().createAttendanceData(eventId);
+      await AttendanceDatabase().saveToLocalStorage(eventId);
 
       loadAttendeeCount(eventId);
     
@@ -73,6 +74,5 @@ class AttendeeCubit extends Cubit<int> {
       print("Error updating attendee count: $e");
     }
   }
-
   
 }

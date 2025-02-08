@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
-
-import '../../core/bloc/online_offline/online_offline_cubit.dart';
+import '../../core/global_bloc/online_offline/online_offline_cubit.dart';
+import '../../core/network/internet_connectivity.dart';
 
 
 
@@ -115,7 +114,17 @@ class Settings extends StatelessWidget {
          BlocBuilder<OnlineOfflineCubit, OnlineOfflineState>(
             builder: (context, state) {
               bool isOnline = state is OnlineState;
+              bool isConnected = context.watch<ConnectivityProvider>().isConnected;
 
+              // Determine if the device is online based on both cubit and connectivity provider
+              bool isDeviceOnline = isOnline && isConnected;
+              
+              // Check if device is online or offline
+              if (isDeviceOnline) {
+                print("Device is online");
+              } else {
+                print("Device is offline");
+              }
               return ListTile(
                 title: const Text('Online Mode'),
                 leading: const Icon(Icons.wifi),

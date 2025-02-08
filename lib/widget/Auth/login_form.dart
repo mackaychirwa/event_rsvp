@@ -1,11 +1,11 @@
-import 'package:event_rsvp/core/bloc/auth_loading.dart';
+import 'package:event_rsvp/screens/authentication/bloc/user/auth_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../constant/sizes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:event_rsvp/core/bloc/auth_bloc.dart';
-import 'package:event_rsvp/core/bloc/auth_error.dart';
-import 'package:event_rsvp/core/bloc/auth_success.dart';
+import 'package:event_rsvp/screens/authentication/bloc/user/auth_bloc.dart';
+import 'package:event_rsvp/screens/authentication/bloc/user/auth_error.dart';
+import 'package:event_rsvp/screens/authentication/bloc/user/auth_success.dart';
 class login_form extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();

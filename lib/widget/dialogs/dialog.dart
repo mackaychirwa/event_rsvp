@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CancelRsvpDialog extends StatelessWidget {
   final VoidCallback onConfirm;
@@ -13,13 +12,13 @@ class CancelRsvpDialog extends StatelessWidget {
       content: const Text("Are you sure you want to cancel your RSVP for this event?"),
       actions: [
         TextButton(
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.of(context).pop(), 
           child: const Text("No"),
         ),
         TextButton(
           onPressed: () {
             onConfirm();
-            Get.back();
+            Navigator.of(context).pop();  
           },
           child: const Text("Yes"),
         ),

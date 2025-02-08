@@ -1,11 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../models/Notification/notificationEnum.dart';
-import '../../models/Notification/notificationItem.dart';
 import '../../widget/Nodata/noData.dart';
+import 'model/notification/notificationEnum.dart';
+import 'model/notification/notificationItem.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});

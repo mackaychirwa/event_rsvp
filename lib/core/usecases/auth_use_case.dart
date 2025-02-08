@@ -1,6 +1,6 @@
-import 'package:event_rsvp/core/database/registration/userRegistrationDatabase.dart';
+import 'package:event_rsvp/screens/authentication/database/registration/userRegistrationDatabase.dart';
 
-import '../../models/user/user_entity.dart';
+import '../../screens/authentication/model/user/user_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpUseCase {

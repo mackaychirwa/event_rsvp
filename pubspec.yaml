@@ -31,13 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
   # Offline Storage
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
- 
+  # hive: ^2.2.3
+  # hive_flutter: ^1.1.0
+  hive_ce: ^2.10.1
+  hive_ce_flutter:
   # State Management
   flutter_riverpod: ^2.6.1
-  get: ^4.6.6
-  get_it: ^8.0.3
   flutter_bloc: ^9.0.0
   bloc: ^9.0.0
   equatable: ^2.0.7
@@ -67,7 +66,11 @@ dependencies:
 
   # For internet 
   connectivity_plus: ^6.1.3
-  flutter_background_service: ^5.1.0
+  internet_connection_checker: ^1.0.0+1
+  permission_handler: ^11.3.1
+
+  #Background service
+  workmanager: ^0.5.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -76,7 +79,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.4.9
-  hive_generator: ^2.0.0
+  hive_ce_generator:
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

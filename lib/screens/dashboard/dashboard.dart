@@ -1,10 +1,10 @@
-import 'package:event_rsvp/models/event/eventModel.dart';
+import 'package:event_rsvp/screens/event/model/event/eventModel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../constant/images.dart';
-import '../../core/bloc/event/event_cubit.dart';
-import '../../core/bloc/user/user_bloc.dart';
-import '../books/eventPage.dart';
+import '../event/bloc/event/event_cubit.dart';
+import '../authentication/bloc/user/user_bloc.dart';
+import '../event/eventPage.dart';
 import 'package:flutter/material.dart';
 import '../../widget/appBar/custom_app_bar.dart';
 

@@ -7,7 +7,7 @@ import 'package:workmanager/workmanager.dart';
 import '../../constant/images.dart';
 import '../../constant/colors.dart';
 import '../../constant/sizes.dart';
-import '../event/bloc/attendance/attendance_cubit.dart';
+import 'bloc/attendance/attendance_cubit.dart';
 import '../../main.dart';
 
 class EventPage extends StatefulWidget {
