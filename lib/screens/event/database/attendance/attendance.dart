@@ -1,38 +1,46 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive_ce/hive.dart';
 
 import '../../../../core/global_bloc/sync/sync_cubit.dart';
 
 class AttendanceDatabase {
   final user = FirebaseAuth.instance.currentUser;
-  final db = FirebaseFirestore.instance;
-
-
-  
-  final CollectionReference attendance =
-      FirebaseFirestore.instance.collection("user_attendance");
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  // Initializes notifications
-  Future<void> initializeNotifications() async {
-    const android = AndroidInitializationSettings('app_icon');
-    final settings = InitializationSettings(android: android);
-    await flutterLocalNotificationsPlugin.initialize(settings);
+   Future<void> _showNotification(String title, String body) async {
+    const androidDetails = AndroidNotificationDetails(
+      'attendance_channel',
+      'Attendance Sync',
+      channelDescription: 'Sync notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    const notificationDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+        0, title, body, notificationDetails);
   }
 
-  Future<void> createAttendanceData(String event_ID) async {
-    return await attendance.doc(user!.uid).set({
-      'uid': user!.uid,
-      'event_id': event_ID,
-      'attendance': 'attending',
-    });
+  /// Save attendance to Firestore
+  Future<void> createAttendanceData(String eventID) async {
+    try {
+      await _firestore.collection("user_attendance").doc(user!.uid).set({
+        'uid': user!.uid,
+        'events': FieldValue.arrayUnion([eventID]),
+        'attendance': 'attending',
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print("Firestore attendance save failed: $e");
+    }
   }
 
-  // save to local storage using hive
+  /// Save to local storage using Hive (for offline use)
   Future<void> saveToLocalStorage(String eventID) async {
     var box = await Hive.openBox('attendanceBox');
 
@@ -46,7 +54,7 @@ class AttendanceDatabase {
     await box.put(eventID, attendanceData);
   }
 
-  /// Syncs local attendance data to Firestore
+  /// Sync local attendance data to Firestore
   Future<void> syncToFirestore() async {
     var box = await Hive.openBox('attendanceBox');
 
@@ -55,39 +63,23 @@ class AttendanceDatabase {
 
       if (data['sync'] == 'none') {
         try {
-          await attendance.doc(user!.uid).set({
+          await _firestore.collection("user_attendance").doc(user!.uid).set({
             'uid': data['uid'],
-            'event_id': data['event_id'],
+            'events': FieldValue.arrayUnion([data['event_id']]),
             'attendance': 'attending',
-          });
+          }, SetOptions(merge: true));
 
           // Update sync status in local storage
           data['sync'] = 'done';
           await box.put(key, data);
+
           // Emit sync done and send notification
           SyncCubit().syncDone();
-          _showNotification(
-              "Sync Successful", "Your attendance data is synced!");
+      
         } catch (e) {
           print("Sync failed: $e");
         }
       }
     }
-  }
-
-  // Function to show notification
-  Future<void> _showNotification(String title, String body) async {
-    const androidDetails = AndroidNotificationDetails(
-      'attendance_channel',
-      'Attendance Sync',
-      channelDescription: 'Channel for attendance sync notifications',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-
-    const notificationDetails = NotificationDetails(android: androidDetails);
-
-    await flutterLocalNotificationsPlugin.show(
-        0, title, body, notificationDetails);
   }
 }

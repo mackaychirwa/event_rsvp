@@ -45,4 +45,12 @@ class EventModel {
       "attendee": attendee,
     };
   }
+factory EventModel.fromMap(Map<String, dynamic> map) {
+    return EventModel(
+      id: map['uid'] ?? '',
+      eventName: map['eventName'] ?? '',
+      location: map['location'] ?? '',
+      attendee: map['attendee'] ?? 0,
+    );
+  }
 }

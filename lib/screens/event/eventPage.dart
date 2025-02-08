@@ -124,11 +124,6 @@ class _EventPageState extends State<EventPage> {
               ),
               onPressed: () async {
                 context.read<AttendeeCubit>().increaseAttendeeCount(widget.event.id); 
-                await Workmanager()
-                    .initialize(callbackDispatcher, isInDebugMode: true);
-                await Workmanager().registerOneOffTask('1', 'simpleTask',
-                    constraints:
-                        Constraints(networkType: NetworkType.connected));
                 Navigator.pushReplacementNamed(context, '/bottomNav');
               },
               child: const Text('RSVP', style: TextStyle(color: CColors.white)),

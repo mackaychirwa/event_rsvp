@@ -6,9 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 import '../../model/event/eventModel.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../../../../core/network/internet_connectivity.dart';
 
 // Define the events states
 abstract class EventState extends Equatable {
@@ -20,7 +18,6 @@ class EventInitial extends EventState {}
 
 class EventLoaded extends EventState {
   final List<EventModel> events;
-  // final List<Map<String, dynamic>> events;
   EventLoaded(this.events);
 
   @override
@@ -46,7 +43,6 @@ class FetchEvents extends EventEvent {}
 
 // Create the Cubit to manage the event state
 class EventCubit extends Cubit<EventState> {
-  // EventCubit() : super(EventInitial());
    EventCubit() : super(EventInitial()) {
     _openBox();
   }
@@ -58,23 +54,7 @@ class EventCubit extends Cubit<EventState> {
   Future<void> _openBox() async {
     getEvent = await Hive.openBox<EventModel>('eventsBox');
   }
-  // Future<void> fetchEvents() async {
-  //   try {
-  //     QuerySnapshot snapshot =
-  //         await _firebaseFirestore.collection('events').get();
-
-  //     final events = snapshot.docs.map((doc) {
-  //       final data = doc.data() as Map<String, dynamic>;
-  //       final event = EventModel.fromFirestore(data, doc.id);
-  //       log(event.toString());
-  //       getEvent.put(doc.id, event);
-  //       return EventModel.fromFirestore(data, doc.id);
-  //     }).toList();
-  //     emit(EventLoaded(events));
-  //   } catch (e) {
-  //     emit(EventError(e.toString()));
-  //   }
-  // }
+ 
   Future<void> fetchEvents() async {
     try {
       QuerySnapshot snapshot = await _firebaseFirestore.collection('events').get();
@@ -82,8 +62,8 @@ class EventCubit extends Cubit<EventState> {
       final events = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final event = EventModel.fromFirestore(data, doc.id);
-        log(event.toString());  // Log the event as a string
-        getEvent.put(doc.id, event);  // Store the event in Hive box
+        log(event.toString());  
+        getEvent.put(doc.id, event);
         return event;
       }).toList();
       emit(EventLoaded(events));
@@ -93,13 +73,13 @@ class EventCubit extends Cubit<EventState> {
   }
   Future<void> fetchMyEvents() async {
     try {
-      DocumentSnapshot snapshot =
-          await _firebaseFirestore.collection('events').doc(user!.uid).get();
+      DocumentSnapshot snapshot = await _firebaseFirestore.collection('events').doc(user!.uid).get();
 
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
         final event = EventModel.fromFirestore(data, snapshot.id);
-
+        print('Event'+ event.toString()); 
+        
         emit(EventLoaded([event]));
       } else {
         emit(EventLoaded([]));
@@ -108,4 +88,5 @@ class EventCubit extends Cubit<EventState> {
       emit(EventError(e.toString()));
     }
   }
+  
 }

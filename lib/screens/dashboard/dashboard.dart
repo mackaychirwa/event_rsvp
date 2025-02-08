@@ -22,8 +22,11 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     context.read<UserCubit>().fetchUser();
-    context.read<EventCubit>().fetchEvents();
+      context.read<EventCubit>().fetchEvents();
+    // Future.microtask(() {
+    // });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +100,7 @@ class _DashboardState extends State<Dashboard> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
+        
         SizedBox(
           height: 180,
           child: ListView(

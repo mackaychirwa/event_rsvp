@@ -1,15 +1,52 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:event_rsvp/helpers/helper_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_ce/hive.dart';
 import '../../core/global_bloc/online_offline/online_offline_cubit.dart';
+import '../../core/global_bloc/sync/sync_cubit.dart';
+import '../../core/network/connectivity_service.dart';
 import '../../core/network/internet_connectivity.dart';
 
-
-
 class Settings extends StatelessWidget {
+  final user = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<void> syncToFirestore(BuildContext context) async {
+    var box = await Hive.openBox('attendanceBox');
+
+    for (var key in box.keys) {
+      Map<String, dynamic> data = Map<String, dynamic>.from(box.get(key));
+
+      if (data['sync'] == 'none') {
+        try {
+          await _firestore.collection("user_attendance").doc(user!.uid).set({
+            'uid': data['uid'],
+            'events': FieldValue.arrayUnion([data['event_id']]),
+            'attendance': 'attending',
+          }, SetOptions(merge: true));
+
+          // Update sync status in local storage
+          data['sync'] = 'done';
+          await box.put(key, data);
+          CHelperFunctions.showSnackBar(context, 'Sychronization has been succesfull');
+          // Emit sync done and send notification
+          SyncCubit().syncDone();
+        } catch (e) {
+          print("Sync failed: $e");
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, '/bottomNav'),
+            icon: Icon(Icons.arrow_back)),
         automaticallyImplyLeading: false,
         title: const Text('Profile'),
       ),
@@ -86,7 +123,8 @@ class Settings extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   title: const Text('Clear Cache'),
-                  content: const Text('Are you sure you want to clear the cache?'),
+                  content:
+                      const Text('Are you sure you want to clear the cache?'),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -110,17 +148,18 @@ class Settings extends StatelessWidget {
             },
           ),
           const Divider(),
-
-         BlocBuilder<OnlineOfflineCubit, OnlineOfflineState>(
+          BlocBuilder<OnlineOfflineCubit, OnlineOfflineState>(
             builder: (context, state) {
               bool isOnline = state is OnlineState;
-              bool isConnected = context.watch<ConnectivityProvider>().isConnected;
+              bool isConnected =
+                  context.watch<ConnectivityProvider>().isConnected;
 
               // Determine if the device is online based on both cubit and connectivity provider
               bool isDeviceOnline = isOnline && isConnected;
-              
+
               // Check if device is online or offline
               if (isDeviceOnline) {
+                syncToFirestore(context);
                 print("Device is online");
               } else {
                 print("Device is offline");
@@ -132,13 +171,17 @@ class Settings extends StatelessWidget {
                   value: isOnline,
                   onChanged: (bool value) {
                     // Toggle the online/offline mode using the cubit
-                    context.read<OnlineOfflineCubit>().toggleOnlineStatus(value);
+                    context
+                        .read<OnlineOfflineCubit>()
+                        .toggleOnlineStatus(value);
 
                     // Optionally, show a snack bar or perform any other action
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          value ? 'Switched to Online Mode' : 'Switched to Offline Mode',
+                          value
+                              ? 'Switched to Online Mode'
+                              : 'Switched to Offline Mode',
                         ),
                       ),
                     );
@@ -147,18 +190,15 @@ class Settings extends StatelessWidget {
               );
             },
           ),
-
           const Divider(),
           ListTile(
             title: const Text('Logout'),
             leading: const Icon(Icons.exit_to_app, color: Colors.red),
             onTap: () {
               Navigator.pushNamed(context, '/signin');
-
             },
           ),
           const Divider(),
-            
         ],
       ),
     );
