@@ -7,7 +7,6 @@ import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 import '../../model/event/eventModel.dart';
 
-
 // Define the events states
 abstract class EventState extends Equatable {
   @override
@@ -43,7 +42,7 @@ class FetchEvents extends EventEvent {}
 
 // Create the Cubit to manage the event state
 class EventCubit extends Cubit<EventState> {
-   EventCubit() : super(EventInitial()) {
+  EventCubit() : super(EventInitial()) {
     _openBox();
   }
   final user = FirebaseAuth.instance.currentUser;
@@ -54,15 +53,16 @@ class EventCubit extends Cubit<EventState> {
   Future<void> _openBox() async {
     getEvent = await Hive.openBox<EventModel>('eventsBox');
   }
- 
+
   Future<void> fetchEvents() async {
     try {
-      QuerySnapshot snapshot = await _firebaseFirestore.collection('events').get();
+      QuerySnapshot snapshot =
+          await _firebaseFirestore.collection('events').get();
 
       final events = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final event = EventModel.fromFirestore(data, doc.id);
-        log(event.toString());  
+        log(event.toString());
         getEvent.put(doc.id, event);
         return event;
       }).toList();
@@ -71,22 +71,24 @@ class EventCubit extends Cubit<EventState> {
       emit(EventError(e.toString()));
     }
   }
+
   Future<void> fetchMyEvents() async {
     try {
-      DocumentSnapshot snapshot = await _firebaseFirestore.collection('events').doc(user!.uid).get();
+      DocumentSnapshot snapshot =
+          await _firebaseFirestore.collection('user_attendance').doc(user!.uid).get();
 
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
         final event = EventModel.fromFirestore(data, snapshot.id);
-        print('Event'+ event.toString()); 
-        
+        print('Event' + event.toString());
+
         emit(EventLoaded([event]));
       } else {
+        print('esles');
         emit(EventLoaded([]));
       }
     } catch (e) {
       emit(EventError(e.toString()));
     }
   }
-  
 }

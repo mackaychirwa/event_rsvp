@@ -17,17 +17,11 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   context.read<EventCubit>().fetchMyEvents();
-  // }
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
       context.read<EventCubit>().fetchMyEvents();
-    });
   }
 
   @override

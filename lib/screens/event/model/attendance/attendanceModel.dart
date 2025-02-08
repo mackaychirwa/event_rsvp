@@ -33,7 +33,7 @@ class AttendanceModel {
       uid: data['uid'] ?? '',
       eventId: data['event_id'] ?? '',
       attendance: data['attendance'] ?? 'attending',
-      sync: 'done', // Set sync as 'done' by default for firestore data
+      sync: 'done', 
     );
   }
 
