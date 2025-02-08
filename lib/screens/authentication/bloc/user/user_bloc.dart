@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 
+import '../../model/user/userModel.dart';
+
 // Define the user states
 abstract class UserState extends Equatable {
   @override
@@ -41,15 +43,22 @@ class FetchUser extends UserEvent {}
 // Create the Cubit to manage the user state
 class UserCubit extends Cubit<UserState> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  late Box<UserModel> getUser;
 
-  UserCubit() : super(UserInitial());
+  // UserCubit() : super(UserInitial());
+     UserCubit() : super(UserInitial()) {
+    _openBox();
+  }
+ Future<void> _openBox() async {
+    getUser = await Hive.openBox<UserModel>('userBox');
+  }
+
 
   void fetchUser() async {
     try {
       User? user = _firebaseAuth.currentUser;
       if (user != null) {
-        var box = await Hive.openBox('userBox');
-        var storedUser = box.get('user', defaultValue: null);
+        var storedUser = getUser.get('user', defaultValue: null);
 
         if (storedUser != null) {
           emit(UserLoaded(storedUser.fullname));
@@ -61,7 +70,13 @@ class UserCubit extends Cubit<UserState> {
 
           if (userDoc.exists) {
             String userName = userDoc['fullname'] ?? "Guest";
-            box.put('user', userDoc);
+
+            // Create a UserModel instance and store it in the box
+            UserModel userModel = UserModel.fromFirestore(userDoc);
+                  // Store the user model
+            await getUser.put('user', userModel);
+
+            // getUser.put('user', userDoc);
             emit(UserLoaded(userName));
           } else {
             emit(UserError("User data not found"));

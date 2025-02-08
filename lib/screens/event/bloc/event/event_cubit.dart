@@ -46,30 +46,51 @@ class FetchEvents extends EventEvent {}
 
 // Create the Cubit to manage the event state
 class EventCubit extends Cubit<EventState> {
-  EventCubit() : super(EventInitial());
+  // EventCubit() : super(EventInitial());
+   EventCubit() : super(EventInitial()) {
+    _openBox();
+  }
   final user = FirebaseAuth.instance.currentUser;
   late Box<EventModel> getEvent;
 
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+  // Open the Hive box
+  Future<void> _openBox() async {
+    getEvent = await Hive.openBox<EventModel>('eventsBox');
+  }
+  // Future<void> fetchEvents() async {
+  //   try {
+  //     QuerySnapshot snapshot =
+  //         await _firebaseFirestore.collection('events').get();
 
+  //     final events = snapshot.docs.map((doc) {
+  //       final data = doc.data() as Map<String, dynamic>;
+  //       final event = EventModel.fromFirestore(data, doc.id);
+  //       log(event.toString());
+  //       getEvent.put(doc.id, event);
+  //       return EventModel.fromFirestore(data, doc.id);
+  //     }).toList();
+  //     emit(EventLoaded(events));
+  //   } catch (e) {
+  //     emit(EventError(e.toString()));
+  //   }
+  // }
   Future<void> fetchEvents() async {
     try {
-      QuerySnapshot snapshot =
-          await _firebaseFirestore.collection('events').get();
+      QuerySnapshot snapshot = await _firebaseFirestore.collection('events').get();
 
       final events = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final event = EventModel.fromFirestore(data, doc.id);
-        log(event as String);
-        // getEvent.put(doc.id, event);
-        return EventModel.fromFirestore(data, doc.id);
+        log(event.toString());  // Log the event as a string
+        getEvent.put(doc.id, event);  // Store the event in Hive box
+        return event;
       }).toList();
       emit(EventLoaded(events));
     } catch (e) {
       emit(EventError(e.toString()));
     }
   }
-
   Future<void> fetchMyEvents() async {
     try {
       DocumentSnapshot snapshot =
