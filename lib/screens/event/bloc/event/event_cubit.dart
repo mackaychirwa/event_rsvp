@@ -79,6 +79,7 @@ class EventCubit extends Cubit<EventState> {
 
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
+        //TODO:: change this to a Attendance model, to get event and user related data
         final event = EventModel.fromFirestore(data, snapshot.id);
         print('Event' + event.toString());
 
