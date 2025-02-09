@@ -8,6 +8,7 @@ import '../../core/global_bloc/online_offline/online_offline_cubit.dart';
 import '../../core/global_bloc/sync/sync_cubit.dart';
 import '../../core/network/connectivity_service.dart';
 import '../../core/network/internet_connectivity.dart';
+import '../authentication/model/user/userModel.dart';
 
 class Settings extends StatelessWidget {
   final user = FirebaseAuth.instance.currentUser;
@@ -191,13 +192,28 @@ class Settings extends StatelessWidget {
             },
           ),
           const Divider(),
-          ListTile(
-            title: const Text('Logout'),
-            leading: const Icon(Icons.exit_to_app, color: Colors.red),
-            onTap: () {
-              Navigator.pushNamed(context, '/signin');
-            },
-          ),
+          
+         
+
+            ListTile(
+              title: const Text('Logout'),
+              leading: const Icon(Icons.exit_to_app, color: Colors.red),
+              onTap: () async {
+                // Clear the Hive userBox
+                var userBox = await Hive.openBox<UserModel>('userBox');
+                await userBox.clear();  
+
+                // Optionally, close the box if no longer needed
+                await userBox.close();
+
+                // Sign out the user from Firebase
+                await FirebaseAuth.instance.signOut();
+
+                // Navigate to the sign-in screen and remove all previous routes
+                Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
+              },
+            ),
+
           const Divider(),
         ],
       ),

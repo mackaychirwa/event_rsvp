@@ -1,8 +1,8 @@
 import 'package:hive_ce/hive.dart';
 
-part 'attendanceModel.g.dart'; // Required for Hive type generation
+part 'attendanceModel.g.dart'; 
 
-@HiveType(typeId: 0) // Set the typeId for the model (must be unique within your app)
+@HiveType(typeId: 2) 
 class AttendanceModel {
   @HiveField(0)
   int id;

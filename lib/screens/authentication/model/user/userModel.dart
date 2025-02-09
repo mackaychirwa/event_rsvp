@@ -17,19 +17,22 @@ class UserModel {
   @HiveField(3)
   String fullname;
 
+  @HiveField(4)
+  String account_type;
   UserModel({
     this.localId = 0,
     required this.uid,
     required this.email,
     required this.fullname,
+    required this.account_type,
   });
 
-  // Factory constructor to create UserModel from Firestore document
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     return UserModel(
-      uid: doc['uid'] ?? '', // Make sure `uid` is stored in Firestore
-      email: doc['email'] ?? '', // Make sure `email` is stored in Firestore
-      fullname: doc['fullname'] ?? 'Guest', // Default to 'Guest' if fullname is not available
+      uid: doc['uid'] ?? '', 
+      email: doc['email'] ?? '', 
+      fullname: doc['fullname'] ?? 'Guest', 
+      account_type: doc['account_type'] ?? 'user', 
     );
   }
 
@@ -39,6 +42,7 @@ class UserModel {
       'uid': uid,
       'email': email,
       'fullname': fullname,
+      'account_type': account_type,
     };
   }
 }

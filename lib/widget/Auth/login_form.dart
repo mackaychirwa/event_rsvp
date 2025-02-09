@@ -70,7 +70,14 @@ class login_form extends StatelessWidget {
                       );
                       emailController.clear();
                       passwordController.clear();
-                      Navigator.pushReplacementNamed(context, '/bottomNav');
+                      if(state.user.account_type == 'user')
+                      {
+                        Navigator.pushReplacementNamed(context, '/bottomNav');
+
+                      }else if(state.user.account_type == 'admin')
+                      {
+                        Navigator.pushReplacementNamed(context, '/admin');
+                      }
                     }
                 },
                 builder: (context, state) {

@@ -25,6 +25,7 @@ import 'screens/authentication/bloc/user/auth_bloc.dart';
 import '/constant/text_constant.dart';
 import '/core/usecases/auth_use_case.dart';
 import 'screens/authentication/model/user/userModel.dart';
+import 'screens/dashboard/adminDashboard.dart';
 import 'screens/event/bloc/attendance/attendance_cubit.dart';
 import 'screens/event/bloc/event/event_cubit.dart';
 import 'core/global_bloc/online_offline/online_offline_cubit.dart';
@@ -155,6 +156,8 @@ void main() async {
                     '/signin': (context) => const Authentication(),
                     '/signup': (context) => const Register(),
                     '/dashboard': (context) => const Dashboard(),
+                    '/admin': (context) => const AdminDashboard(),
+                    
                     '/bottomNav': (context) => BottomNavBar(),
                     '/settings': (context) => Settings(),
                   },

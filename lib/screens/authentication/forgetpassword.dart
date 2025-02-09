@@ -86,13 +86,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
                                 child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const OTPScreen()));
-                                  },
+                                  onTap: () => (),
                                   child: const Padding(
                                     padding: EdgeInsets.symmetric(
                                       vertical: 0,

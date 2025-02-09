@@ -2,7 +2,7 @@ import 'package:hive_ce/hive.dart';
 
 part 'eventModel.g.dart'; 
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 3)
 class EventModel {
   @HiveField(0)
   int localId;

@@ -23,8 +23,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     context.read<UserCubit>().fetchUser();
       context.read<EventCubit>().fetchEvents();
-    // Future.microtask(() {
-    // });
+    
   }
 
 
