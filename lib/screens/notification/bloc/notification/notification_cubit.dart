@@ -47,46 +47,11 @@ class AttendanceNotificationError extends AttendanceNotificationState {
 
 // Define the Cubit
 class AttendanceNotificationCubit extends Cubit<AttendanceNotificationState> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   NotificationDatabase notificationDatabase;
 
   AttendanceNotificationCubit(this.notificationDatabase) : super(AttendanceNotificationInitial());
-  // _openBox();
 
-  final user = FirebaseAuth.instance.currentUser;
-  // late Box<EventModel> getEvent;
 
-  // // Open the Hive box
-  // Future<void> _openBox() async {
-  //   getEvent = await Hive.openBox<EventModel>('eventsBox');
-  // }
-
-  // Method to send attendance notification
-  Future<void> attendanceNotification(String eventID, String status) async {
-    try {
-      // Emit loading state
-      emit(AttendanceNotificationLoading());
-
-      // Ensure user is authenticated
-      if (user == null) {
-        emit(AttendanceNotificationError("User not authenticated"));
-        return;
-      }
-
-      // Save attendance notification to Firestore
-      await _firestore.collection("notifications").doc(user!.uid).set({
-        'uid': user!.uid,
-        'events': FieldValue.arrayUnion([eventID]),
-        'attendance': status,
-      }, SetOptions(merge: true));
-
-      // Emit success state
-      emit(AttendanceNotificationSuccess(eventID, status));
-    } catch (e) {
-      // Emit error state on failure
-      emit(AttendanceNotificationError("Firestore attendance save failed: $e"));
-    }
-  }
    Future<void> fetchNotification() async {
     try {
       final notification = await notificationDatabase.getAllNotifications();
