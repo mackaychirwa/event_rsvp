@@ -27,7 +27,6 @@ class AttendanceModel {
     this.sync = 'none',
   });
 
-  // Convert Firestore document to Attendance object
   factory AttendanceModel.fromFirestore(Map<String, dynamic> data) {
     return AttendanceModel(
       uid: data['uid'] ?? '',
@@ -37,7 +36,6 @@ class AttendanceModel {
     );
   }
 
-  /// Convert Attendance object to Firestore-compatible map
   Map<String, dynamic> toFirestore() {
     return {
       "uid": uid,

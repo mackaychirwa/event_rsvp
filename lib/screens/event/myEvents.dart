@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../widget/appBar/custom_app_bar.dart';
 import 'bloc/event/event_cubit.dart';
-import 'model/event/eventModel.dart';
+// import 'model/event/eventModel.dart';
+import 'model/attendance/attendanceModel.dart';
 import '../../widget/dialogs/dialog.dart';
+import 'model/event/eventModel.dart';
 
 class Attendance extends StatefulWidget {
   const Attendance({super.key});
@@ -17,11 +19,10 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-
   @override
   void initState() {
     super.initState();
-      context.read<EventCubit>().fetchMyEvents();
+    context.read<EventCubit>().fetchMyEvents();
   }
 
   @override
@@ -34,7 +35,6 @@ class _AttendanceState extends State<Attendance> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
             const SizedBox(height: 24),
             _buildBestForYouSection(),
           ],
@@ -42,49 +42,19 @@ class _AttendanceState extends State<Attendance> {
       ),
     );
   }
-Widget _buildWelcomeMessage(String username) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Hello, $username!",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "What would you like to explore today?",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildBestForYouSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: [
         BlocBuilder<EventCubit, EventState>(
           builder: (context, state) {
             if (state is EventLoaded) {
-              print(state.events);
+              if (state.events.isEmpty) {
+                return const Center(child: Text('You have no active events'));
+              }
               return ListView.builder(
-                shrinkWrap: true, 
+                shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.events.length,
                 itemBuilder: (context, index) {
@@ -93,11 +63,9 @@ Widget _buildWelcomeMessage(String username) {
                 },
               );
             } else if (state is EventError) {
-              return Center(
-                child: Text('Error: ${state.error}'),
-              );
+              return const Center(child: Text('You have no active events'));
             } else {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: Text('You have no active events'));
             }
           },
         ),
@@ -106,45 +74,15 @@ Widget _buildWelcomeMessage(String username) {
   }
 Widget _buildBestForYouCard(EventModel event) {
   return InkWell(
-    onTap: () => Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CancelRsvpDialog(
-          onConfirm: () async {
-            // Handle cancellation logic here
-            print("RSVP Cancelled for event: ${event.eventName}");
-
-            try {
-              final user = FirebaseAuth.instance.currentUser;
-              if (user == null) return;
-
-              final userRef = FirebaseFirestore.instance.collection("user_attendance").doc(user.uid);
-
-              // Get the current events list
-              final snapshot = await userRef.get();
-              if (snapshot.exists) {
-                List<dynamic> eventData = snapshot.data()?['events'] ?? [];
-
-                // Remove the event from the list
-                eventData.removeWhere((e) => e['id'] == event.id);
-
-                // Update Firestore with the modified list
-                await userRef.update({
-                  'events': eventData,
-                });
-
-                // Optionally, update the UI after the event is canceled
-                context.read<EventCubit>().fetchMyEvents();
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Your RSVP has been cancelled")),
-                );
-              }
-            } catch (e) {
-              print("Error cancelling RSVP: $e");
-            }
-          },
-        ),
+    onTap: () => showDialog(
+      context: context,
+      builder: (_) => CancelRsvpDialog(
+        onConfirm: () {
+          context.read<EventCubit>().cancelRSVP(event.id);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Your RSVP has been cancelled")),
+          );
+        },
       ),
     ),
     child: Card(
@@ -191,9 +129,59 @@ Widget _buildBestForYouCard(EventModel event) {
   //       context,
   //       MaterialPageRoute(
   //         builder: (context) => CancelRsvpDialog(
-  //           onConfirm: () {
-  //             // Handle cancellation logic here
-  //             print("RSVP Cancelled");
+  //           onConfirm: () async {
+  //             print("RSVP Cancelled for event: ${event.eventName}");
+
+  //             try {
+  //               final user = FirebaseAuth.instance.currentUser;
+  //               if (user == null) return;
+
+  //               final userRef = FirebaseFirestore.instance
+  //                   .collection("user_attendance")
+  //                   .doc(user.uid);
+
+  //               final eventRef = FirebaseFirestore.instance
+  //                   .collection("events")
+  //                   .doc(event.id);
+
+  //               // Get user attendance data
+  //               final snapshot = await userRef.get();
+  //               if (snapshot.exists) {
+  //                 List<dynamic> eventData = snapshot.data()?['events'] ?? [];
+  //                 eventData
+  //                     .removeWhere((e) => e.toString() == event.id.toString());
+  //                 print("RSVP eventData: ${eventData}");
+
+  //                 // Update user attendance
+  //                 await userRef.update({'events': eventData});
+
+  //                 // Decrease event attendee count
+  //                 await FirebaseFirestore.instance
+  //                     .runTransaction((transaction) async {
+  //                   final eventSnapshot = await transaction.get(eventRef);
+  //                   if (eventSnapshot.exists) {
+  //                     int currentAttendees =
+  //                         eventSnapshot.data()?['attendee'] ?? 0;
+  //                     print('eventSnapshot' + currentAttendees.toString());
+
+  //                     int newAttendeeCount =
+  //                         (currentAttendees > 0) ? currentAttendees - 1 : 0;
+  //                     transaction
+  //                         .update(eventRef, {'attendee': newAttendeeCount});
+  //                   }
+  //                 });
+
+  //                 if (mounted) {
+  //                   context.read<EventCubit>().fetchMyEvents();
+  //                   ScaffoldMessenger.of(context).showSnackBar(
+  //                     const SnackBar(
+  //                         content: Text("Your RSVP has been cancelled")),
+  //                   );
+  //                 }
+  //               }
+  //             } catch (e) {
+  //               print("Error cancelling RSVP: $e");
+  //             }
   //           },
   //         ),
   //       ),

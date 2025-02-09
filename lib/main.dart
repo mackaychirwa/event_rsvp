@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
 
@@ -16,7 +15,6 @@ import 'package:hive_ce/hive.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'dart:ui';
 import '/screens/authentication/authentication.dart';
 import '/screens/authentication/registration.dart';
 import '/screens/dashboard/dashboard.dart';
@@ -33,6 +31,7 @@ import 'core/network/internet_connectivity.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 
+import 'screens/event/database/attendance/attendance.dart';
 import 'screens/event/model/attendance/attendanceModel.dart';
 import 'screens/event/model/event/eventModel.dart';
 
@@ -90,7 +89,7 @@ void main() async {
         providers: [
           BlocProvider(create: (context) => AuthCubit(SignUpUseCase())),
           BlocProvider(create: (context) => UserCubit()),
-          BlocProvider(create: (context) => EventCubit()),
+          BlocProvider(create: (context) => EventCubit(AttendanceDatabase())),
           BlocProvider(create: (context) => AttendeeCubit()),
           BlocProvider(create: (context) => OnlineOfflineCubit()),
         ],

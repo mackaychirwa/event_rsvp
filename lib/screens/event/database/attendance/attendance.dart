@@ -5,14 +5,17 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive_ce/hive.dart';
 
 import '../../../../core/global_bloc/sync/sync_cubit.dart';
+import '../../model/attendance/userAttendanceModel.dart';
+import '../../model/event/eventModel.dart';
 
 class AttendanceDatabase {
   final user = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  late Box<EventModel> getEvent;
 
-   Future<void> _showNotification(String title, String body) async {
+  Future<void> _showNotification(String title, String body) async {
     const androidDetails = AndroidNotificationDetails(
       'attendance_channel',
       'Attendance Sync',
@@ -75,11 +78,93 @@ class AttendanceDatabase {
 
           // Emit sync done and send notification
           SyncCubit().syncDone();
-      
         } catch (e) {
           print("Sync failed: $e");
         }
       }
     }
   }
+
+  Future<void> cancelRSVP(String eventId) async {
+    try {
+      if (user == null) return;
+
+      final userRef = _firestore.collection("user_attendance").doc(user!.uid);
+      final eventRef = _firestore.collection("events").doc(eventId);
+
+      final snapshot = await userRef.get();
+      if (snapshot.exists) {
+        List<dynamic> eventData = snapshot.data()?['events'] ?? [];
+        eventData.removeWhere((e) => e.toString() == eventId);
+
+        // Update user's attendance list
+        await userRef.update({'events': eventData});
+
+        // Decrease event attendee count
+        await _firestore.runTransaction((transaction) async {
+          final eventSnapshot = await transaction.get(eventRef);
+          if (eventSnapshot.exists) {
+            int currentAttendees = eventSnapshot.data()?['attendee'] ?? 0;
+            int newAttendeeCount =
+                (currentAttendees > 0) ? currentAttendees - 1 : 0;
+            transaction.update(eventRef, {'attendee': newAttendeeCount});
+          }
+        });
+      }
+    } catch (e) {
+      throw Exception("Error cancelling RSVP: $e");
+    }
+  }
+
+  // Retrieves events for a specific user
+  Future<List<EventModel>> getUserEvents(String userId) async {
+    try {
+      DocumentSnapshot snapshot = await _firestore
+          .collection('user_attendance')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        final userAttendance = UserAttendanceModel.fromFirestore(data);
+
+        List<EventModel> events = [];
+        for (String eventId in userAttendance.events) {
+          DocumentSnapshot eventSnapshot = await _firestore
+              .collection('events')
+              .doc(eventId)
+              .get();
+          if (eventSnapshot.exists) {
+            final eventData = eventSnapshot.data() as Map<String, dynamic>;
+            final event = EventModel.fromFirestore(eventData, eventSnapshot.id);
+            events.add(event);
+          }
+        }
+        return events;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      throw Exception('Error fetching user events: $e');
+    }
+  }
+ Future<List<EventModel>> getAllEvents() async {
+  try {
+    QuerySnapshot snapshot = await _firestore.collection('events').get();
+
+    final events = snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      final event = EventModel.fromFirestore(data, doc.id);
+      return event;
+    }).toList();
+
+    return events;
+  } catch (e) {
+    print('Error fetching events from Firestore: $e');
+    return [];  
+  }
+}
+
+
+
 }
