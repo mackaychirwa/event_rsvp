@@ -1,8 +1,11 @@
-import 'dart:math';
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widget/Nodata/noData.dart';
+import 'bloc/notification/notification_cubit.dart';
 import 'model/notification/notificationEnum.dart';
 import 'model/notification/notificationItem.dart';
 
@@ -14,52 +17,16 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  final List<NotificationItem> notifications = [];
+  late final String userUid;
 
   @override
   void initState() {
     super.initState();
-    generateRSVPNotifications(); 
-  }
-
-  void generateRSVPNotifications() {
-    final random = Random();
-    final List<String> titles = [
-      'RSVP Confirmation',
-      'Event Reminder',
-      'RSVP Cancellation',
-      'Event Update',
-      'Event RSVP Closed',
-      'Upcoming Event Alert',
-      'RSVP Deadline Approaching',
-    ];
-
-    final List<String> subtitles = [
-      'Your RSVP for the event has been confirmed.',
-      'Reminder: The event you RSVP for is coming up soon.',
-      'Your RSVP for the event has been canceled.',
-      'There has been an update to the event details.',
-      'RSVP for this event is now closed.',
-      'An event you might be interested in is happening soon.',
-      'The RSVP deadline for an event is approaching.',
-    ];
-
-    final List<NotificationType> types = [
-      NotificationType.person,
-      NotificationType.system,
-    ];
-
-    for (int i = 0; i < 7; i++) {
-      notifications.add(
-        NotificationItem(
-          title: titles[random.nextInt(titles.length)],
-          subtitle: subtitles[random.nextInt(subtitles.length)],
-          time:
-              '${random.nextInt(12) + 1}:${random.nextInt(60).toString().padLeft(2, '0')} ${random.nextBool() ? 'AM' : 'PM'}',
-          date: 'July ${random.nextInt(30) + 1}, 2025',
-          type: types[random.nextInt(types.length)],
-        ),
-      );
+    userUid =
+        FirebaseAuth.instance.currentUser?.uid ?? ''; // Get current user UID
+    if (userUid.isNotEmpty) {
+      // Fetch notifications for the user when the page is initialized
+      context.read<AttendanceNotificationCubit>().fetchNotification();
     }
   }
 
@@ -73,66 +40,79 @@ class _NotificationsPageState extends State<NotificationsPage> {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              setState(() {
-                notifications.clear();
-              });
+              // Handle notifications clearing if needed
             },
           ),
         ],
         backgroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
-      body: notifications.isEmpty
-          ? const NoData(message: 'No Notifications')
-          : ListView.builder(
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                final notification = notifications[index];
-                return Dismissible(
-                  key: Key(notification.hashCode.toString()),
-                  direction: DismissDirection.startToEnd,
-                  background: Container(
-                    color: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    alignment: AlignmentDirectional.centerStart,
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  onDismissed: (direction) {
-                    setState(() {
-                      notifications.removeAt(index);
-                    });
-                  },
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: CircleAvatar(
-                          child: Icon(
-                            notification.type == NotificationType.person
-                                ? FontAwesomeIcons.user
-                                : FontAwesomeIcons.bell,
-                            size: 24,
-                          ),
+      body:
+          BlocBuilder<AttendanceNotificationCubit, AttendanceNotificationState>(
+        builder: (context, state) {
+          if (state is AttendanceNotificationLoading) {
+            return const NoData(message: 'No Notifications');
+          }
+
+          if (state is AttendanceNotificationError) {
+            return Center(child: Text(state.error));
+          }
+
+          if (state is AttendanceNotificationLoaded) {
+            final notifications = state.notifications;
+
+            return notifications.isEmpty
+                ? const NoData(message: 'No Notifications')
+                : ListView.builder(
+                    itemCount: notifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = notifications[index];
+                      return Dismissible(
+                        key: Key(notification.hashCode.toString()),
+                        direction: DismissDirection.startToEnd,
+                        background: Container(
+                          color: Colors.red,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          alignment: AlignmentDirectional.centerStart,
+                          child: const Icon(Icons.delete, color: Colors.white),
                         ),
-                        title: Text(notification.title),
-                        subtitle: Text(notification.subtitle),
-                        trailing: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                        onDismissed: (direction) {
+                          // Handle item dismissal if needed
+                        },
+                        child: Column(
                           children: [
-                            Text(notification.time),
-                            Text(notification.date),
+                            ListTile(
+                              leading: CircleAvatar(
+                                child: Icon(
+                                  notification.type == NotificationType.person
+                                      ? FontAwesomeIcons.user
+                                      : FontAwesomeIcons.bell,
+                                  size: 24,
+                                ),
+                              ),
+                              title: Text(notification.title),
+                              subtitle: Text(notification.subtitle),
+                              trailing: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(notification.time),
+                                  Text(notification.date),
+                                ],
+                              ),
+                              onTap: () {
+                                // Handle tap on the notification
+                              },
+                            ),
+                            const Divider(),
                           ],
                         ),
-                        onTap: () {
-                          if (notification.type == NotificationType.person) {
-                          } else {
-                          }
-                        },
-                      ),
-                      const Divider(), 
-                    ],
-                  ),
-                );
-              },
-            ),
+                      );
+                    },
+                  );
+          }
+
+          return const Center(child: Text('Something went wrong.'));
+        },
+      ),
     );
   }
 }

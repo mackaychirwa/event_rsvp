@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:event_rsvp/screens/authentication/bloc/user/user_bloc.dart';
+import 'package:event_rsvp/screens/notification/database/notification/notificationDatabase.dart';
 import 'package:event_rsvp/screens/settings/settings.dart';
 import 'package:event_rsvp/widget/bottomNavigation/bottomnavbar.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -34,6 +35,7 @@ import 'package:provider/provider.dart';
 import 'screens/event/database/attendance/attendance.dart';
 import 'screens/event/model/attendance/attendanceModel.dart';
 import 'screens/event/model/event/eventModel.dart';
+import 'screens/notification/bloc/notification/notification_cubit.dart';
 
 Future<void> _incrementCounter() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -92,6 +94,8 @@ void main() async {
           BlocProvider(create: (context) => EventCubit(AttendanceDatabase())),
           BlocProvider(create: (context) => AttendeeCubit()),
           BlocProvider(create: (context) => OnlineOfflineCubit()),
+          BlocProvider(create: (context) => AttendanceNotificationCubit(NotificationDatabase())),
+          
         ],
         child: ScreenUtilInit(
           designSize: const Size(360, 690),

@@ -38,6 +38,29 @@ class AttendanceDatabase {
         'events': FieldValue.arrayUnion([eventID]),
         'attendance': 'attending',
       }, SetOptions(merge: true));
+      attendanceNotification(eventID, 'You are attending the event', 'Event Attendance');
+    } catch (e) {
+      print("Firestore attendance save failed: $e");
+    }
+  }
+ Future<void> attendanceNotification(String eventID, String status, String subtitle) async {
+  try {
+        // Get the current date and time
+        final now = DateTime.now();
+        final time = '${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}';
+        final date = '${now.month}/${now.day}/${now.year}';
+        
+        
+        // Store the notification in Firestore
+        await _firestore.collection("notifications").doc(user!.uid).set({
+          'uid': user!.uid,
+          'events': FieldValue.arrayUnion([eventID]),
+          'title': status,
+          'subtitle': subtitle,
+          'time': time,
+          'date': date,
+          'type': 'system', 
+        }, SetOptions(merge: true));
     } catch (e) {
       print("Firestore attendance save failed: $e");
     }
@@ -110,6 +133,8 @@ class AttendanceDatabase {
             transaction.update(eventRef, {'attendee': newAttendeeCount});
           }
         });
+      attendanceNotification(eventId, 'You have cancelled this event', 'cancelled');
+
       }
     } catch (e) {
       throw Exception("Error cancelling RSVP: $e");
@@ -148,22 +173,23 @@ class AttendanceDatabase {
       throw Exception('Error fetching user events: $e');
     }
   }
- Future<List<EventModel>> getAllEvents() async {
-  try {
-    QuerySnapshot snapshot = await _firestore.collection('events').get();
+  Future<List<EventModel>> getAllEvents() async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('events').get();
 
-    final events = snapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      final event = EventModel.fromFirestore(data, doc.id);
-      return event;
-    }).toList();
+      final events = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final event = EventModel.fromFirestore(data, doc.id);
+        return event;
+      }).toList();
 
-    return events;
-  } catch (e) {
-    print('Error fetching events from Firestore: $e');
-    return [];  
+      return events;
+    } catch (e) {
+      print('Error fetching events from Firestore: $e');
+      return [];  
+    }
   }
-}
+  
 
 
 
