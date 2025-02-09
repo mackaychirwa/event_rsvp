@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive_ce/hive.dart';
 
 import '../../../../core/global_bloc/sync/sync_cubit.dart';
+import '../../../authentication/model/user/userModel.dart';
 import '../../model/attendance/userAttendanceModel.dart';
 import '../../model/event/eventModel.dart';
 
@@ -99,7 +100,7 @@ class AttendanceDatabase {
           data['sync'] = 'done';
           await box.put(key, data);
 
-          // Emit sync done and send notification
+          // Emit sync done and send notification sync function from local to firebase
           SyncCubit().syncDone();
         } catch (e) {
           print("Sync failed: $e");
@@ -190,7 +191,10 @@ class AttendanceDatabase {
     }
   }
   
-
-
-
+  Future<void> logout() async {
+      var userBox = await Hive.openBox<UserModel>('userBox');
+      await userBox.clear();  
+      await userBox.close();
+      await FirebaseAuth.instance.signOut();
+  }
 }

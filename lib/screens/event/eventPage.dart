@@ -3,12 +3,10 @@ import 'package:event_rsvp/widget/appBar/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
 import '../../constant/images.dart';
 import '../../constant/colors.dart';
 import '../../constant/sizes.dart';
 import 'bloc/attendance/attendance_cubit.dart';
-import '../../main.dart';
 
 class EventPage extends StatefulWidget {
   final EventModel event;

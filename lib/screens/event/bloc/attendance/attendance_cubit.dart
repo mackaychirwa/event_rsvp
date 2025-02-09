@@ -58,7 +58,6 @@ class AttendeeCubit extends Cubit<int> {
   }
 
   // Method to increase the attendee count
-
   Future<void> increaseAttendeeCount(String eventId) async {
     try {
       await _firebaseFirestore.collection('events').doc(eventId).update({

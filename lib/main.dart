@@ -157,7 +157,6 @@ void main() async {
                     '/signup': (context) => const Register(),
                     '/dashboard': (context) => const Dashboard(),
                     '/admin': (context) => const AdminDashboard(),
-                    
                     '/bottomNav': (context) => BottomNavBar(),
                     '/settings': (context) => Settings(),
                   },

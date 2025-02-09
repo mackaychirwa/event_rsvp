@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:event_rsvp/helpers/helper_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -72,56 +73,56 @@ class _AttendanceState extends State<Attendance> {
       ],
     );
   }
-Widget _buildBestForYouCard(EventModel event) {
-  return InkWell(
-    onTap: () => showDialog(
-      context: context,
-      builder: (_) => CancelRsvpDialog(
-        onConfirm: () {
-          context.read<EventCubit>().cancelRSVP(event.id);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Your RSVP has been cancelled")),
-          );
-        },
+
+  Widget _buildBestForYouCard(EventModel event) {
+    return InkWell(
+      onTap: () => showDialog(
+        context: context,
+        builder: (_) => CancelRsvpDialog(
+          onConfirm: () {
+            context.read<EventCubit>().cancelRSVP(event.id);
+            CHelperFunctions.showSnackBar(
+                context, "Your RSVP has been cancelled");
+          },
+        ),
       ),
-    ),
-    child: Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.grey.shade300,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.grey.shade300,
+            ),
+            child: const Icon(Icons.event, size: 30, color: Colors.grey),
           ),
-          child: const Icon(Icons.event, size: 30, color: Colors.grey),
-        ),
-        title: Text(
-          event.eventName,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(event.location),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "${event.attendee}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+          title: Text(
+            event.eventName,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(event.location),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "${event.attendee}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-            ),
-            const Text(
-              "Attendees",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
+              const Text(
+                "Attendees",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // Widget _buildBestForYouCard(EventModel event) {
   //   return InkWell(

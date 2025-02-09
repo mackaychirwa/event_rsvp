@@ -39,6 +39,7 @@ abstract class EventEvent extends Equatable {
 }
 
 class FetchEvents extends EventEvent {}
+
 class EventRSVPCancelled extends EventState {}
 // Create the Cubit to manage the event state
 class EventCubit extends Cubit<EventState> {
@@ -69,52 +70,53 @@ class EventCubit extends Cubit<EventState> {
     }
   }
 
-  // Future<void> fetchMyEvents() async {
-  //   try {
-  //     if (user == null) {
-  //       emit(EventError("User not authenticated"));
-  //       return;
-  //     }
-  //     final events = await attendanceDatabase.getUserEvents(user!.uid);
-  //     emit(EventLoaded(events));
-  //   } catch (e) {
-  //     emit(EventError(e.toString()));
-  //   }
-  // }
-
   Future<void> fetchMyEvents() async {
     try {
-      DocumentSnapshot snapshot = await _firestore
-          .collection('user_attendance')
-          .doc(user!.uid)
-          .get();
-
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-        final userAttendance = UserAttendanceModel.fromFirestore(data);
-
-        // Fetch actual events based on event IDs
-        List<EventModel> events = [];
-        for (String eventId in userAttendance.events) {
-          DocumentSnapshot eventSnapshot =
-              await _firestore.collection('events').doc(eventId).get();
-          if (eventSnapshot.exists) {
-            final eventData = eventSnapshot.data() as Map<String, dynamic>;
-            final event = EventModel.fromFirestore(eventData, eventSnapshot.id);
-            events.add(event);
-          }
-        }
-
-        print('Fetched Events: $events');
-        emit(EventLoaded(events));
-      } else {
-        print('No events found for user');
-        emit(EventLoaded([]));
+      if (user == null) {
+        emit(EventError("User not authenticated"));
+        return;
       }
+      final events = await attendanceDatabase.getUserEvents(user!.uid);
+      emit(EventLoaded(events));
     } catch (e) {
       emit(EventError(e.toString()));
     }
   }
+
+  //TODO::Remove this code
+  // Future<void> fetchMyEvents() async {
+  //   try {
+  //     DocumentSnapshot snapshot = await _firestore
+  //         .collection('user_attendance')
+  //         .doc(user!.uid)
+  //         .get();
+
+  //     if (snapshot.exists) {
+  //       final data = snapshot.data() as Map<String, dynamic>;
+  //       final userAttendance = UserAttendanceModel.fromFirestore(data);
+
+  //       // Fetch actual events based on event IDs
+  //       List<EventModel> events = [];
+  //       for (String eventId in userAttendance.events) {
+  //         DocumentSnapshot eventSnapshot =
+  //             await _firestore.collection('events').doc(eventId).get();
+  //         if (eventSnapshot.exists) {
+  //           final eventData = eventSnapshot.data() as Map<String, dynamic>;
+  //           final event = EventModel.fromFirestore(eventData, eventSnapshot.id);
+  //           events.add(event);
+  //         }
+  //       }
+
+  //       print('Fetched Events: $events');
+  //       emit(EventLoaded(events));
+  //     } else {
+  //       print('No events found for user');
+  //       emit(EventLoaded([]));
+  //     }
+  //   } catch (e) {
+  //     emit(EventError(e.toString()));
+  //   }
+  // }
 
   Future<void> cancelRSVP(String eventId) async {
     try {
